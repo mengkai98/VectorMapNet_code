@@ -34,7 +34,7 @@ def parse_args():
     parser.add_argument(
         '-v','--version',
         choices=['v1.0-mini', 'v1.0-trainval', 'v1.0-test'],
-        default='v1.0-trainval')
+        default='v1.0-mini')
     
     args = parser.parse_args()
     return args
