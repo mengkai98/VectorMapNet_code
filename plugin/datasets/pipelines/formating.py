@@ -53,6 +53,7 @@ class FormatBundleMap(object):
             if isinstance(results['img'], list):
                 # process multiple imgs in single frame
                 imgs = [img.transpose(2, 0, 1) for img in results['img']]
+                # NCHW;
                 imgs = np.ascontiguousarray(np.stack(imgs, axis=0))
                 results['img'] = DC(to_tensor(imgs), stack=True)
             else:

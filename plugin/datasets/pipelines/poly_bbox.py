@@ -31,10 +31,11 @@ def evaluate_lin_curvature(polyline):
 
 
 def evaluate_line(polyline, curvature=False):
-
+    # 计算每个线段的长度。
     edge = np.linalg.norm(polyline[1:] - polyline[:-1], axis=-1)
-
+    # 取开始和结尾
     start_end_weight = edge[(0, -1), ].copy()
+    # 临近两边的平均长度
     mid_weight = (edge[:-1] + edge[1:]) * .5
 
     pts_weight = np.concatenate(
@@ -63,8 +64,8 @@ def evaluate_line(polyline, curvature=False):
 
 def quantize_verts(
         verts,
-        canvas_size=(400, 200, 100),
-        coord_dim=3,
+        canvas_size=(200, 100),
+        coord_dim=2,
 ):
     """Convert vertices from its original range ([-1,1]) to discrete values in [0, n_bits**2 - 1].
         Args:
@@ -72,7 +73,7 @@ def quantize_verts(
     """
     min_range = 0
     max_range = 1
-    range_quantize = np.array(canvas_size) - 1  # (0-199) = 200
+    range_quantize = np.array(canvas_size) - 1  # (199,99)
 
     verts_ratio = (verts - min_range) / (
         max_range - min_range)
@@ -86,6 +87,7 @@ def get_bbox(
     '''
         polyline: seq_len, coord_dim
     '''
+            # threshold = 4/200 num_point = 10
 
     if mode == 'xyxy':
         polyline = LineString(polyline_nd)
@@ -99,6 +101,7 @@ def get_bbox(
             minx, miny, maxx, maxy = bbox
 
         bbox_np = np.array([[minx, miny], [maxx, maxy]])
+        # 限制boundingbox in[]
         bbox_np = np.clip(bbox_np, 0., 1.)
 
     elif mode == 'sample':
@@ -175,15 +178,19 @@ class PolygonizeLocalMapBbox(object):
                 polyline, valid_len, label, line_type = vector_data
 
             # and pad polyline.
+            # 轮廓线
             if label == 2:
                 polyline_weight = evaluate_line(polyline).reshape(-1)
             else:
                 polyline_weight = np.ones_like(polyline).reshape(-1)
+                # 末尾添加1 
                 polyline_weight = np.pad(
                     polyline_weight, ((0, 1),), constant_values=1.)
                 polyline_weight = polyline_weight/polyline_weight.sum()
 
             #flatten and quantilized
+            # canvas_size :(200,100)
+            # coord_dim : 2 
             fpolyline = quantize_verts(
                 polyline, self.canvas_size, self.coord_dim)
             fpolyline = fpolyline.reshape(-1)
@@ -198,7 +205,7 @@ class PolygonizeLocalMapBbox(object):
             polyline_weights.append(polyline_weight)
             polylines.append(fpolyline)
 
-        if self.flatten:
+        if self.flatten: #false
             polyline_map = np.concatenate(polylines)
             polyline_map_mask = np.concatenate(polyline_masks)
             polyline_map_weights = np.concatenate(polyline_weights)
@@ -219,7 +226,7 @@ class PolygonizeLocalMapBbox(object):
 
         kps, kp_labels = [], []
         qkps, qkp_masks = [], []
-        mode = self.mode if not centerline else 'centerline_keypoint'
+        mode = self.mode if not centerline else 'centerline_keypoint' # mode = xyxy
 
         # quantilize each label's lines individually.
         for vector_data in vectors:
@@ -232,7 +239,7 @@ class PolygonizeLocalMapBbox(object):
             else:
                 polyline = vector_data
                 label = centerline_label
-
+            # threshold = 4/200 num_point = 10
             kp = get_bbox(polyline, mode, self.threshold, self.num_point)
             kps.append(kp)
             kp_labels.append(label)

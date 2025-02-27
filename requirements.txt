@@ -84,7 +84,6 @@ mdurl==0.1.2
 mistune==3.0.2
 mmcv-full==1.3.9
 mmdet==2.14.0
--e git+git@github.com:mengkai98/VectorMapNet_code.git@4bcc8b4d6e6d61066ff0fd20484d9f5852a7a62f#egg=mmdet3d&subdirectory=deps/mmdetection3d
 mmsegmentation==0.14.1
 motmetrics==1.1.3
 mypy-extensions==1.0.0

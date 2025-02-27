@@ -241,13 +241,13 @@ class IPMEncoder(nn.Module):
             Args:
                 cam_feat: B*ncam, C, cH, cW
                 img_shape: tuple(H, W)
-
+                ego2cam : transform from ego to camera 
             Returns:
                 project_feat: B, C, nlvl, bH, bW
                 bev_feat_mask: B, 1, nlvl, bH, bW
         '''
         C = cam_feat.shape[1]
-        bev_grid = self.bev_planes.unsqueeze(0).repeat(self.B, 1, 1, 1, 1)
+        bev_grid = self.bev_plafnes.unsqueeze(0).repeat(self.B, 1, 1, 1, 1)
         nlvl, bH, bW = bev_grid.shape[1:4]
         bev_grid = bev_grid.flatten(1, 3)  # B, nlvl*W*H, 3
 

@@ -29,6 +29,7 @@ class Normalize3D(object):
                 result dict.
         """
         for key in results.get('img_fields', ['img']):
+            # (image-mean)/std
             results[key] = [mmcv.imnormalize(
                 img, self.mean, self.std, self.to_rgb) for img in results[key]]
         results['img_norm_cfg'] = dict(
